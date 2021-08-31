@@ -71,4 +71,5 @@ There are a few areas of concern at the solar power plant -
   *  Infrastructral cost especially in the AWS, given that I had exhausted the free trial; inhibited me from a real POC.
   *  The data is more static, I neede data that is in motion to replicate the renewed data or refresh data.
   *  Even in the Google Cloud Compute the VMs proved costly in installing a production equivalent Airflow setup. 
+  *  The apache airflow dependency really deprecae in case of mismatch, and as search they need lot of observation.
   
