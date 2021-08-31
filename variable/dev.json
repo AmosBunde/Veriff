@@ -1,9 +1,6 @@
 {
-     "project": "",
-     "landing_bucket": "",
-     "backup_bucket": " ",
+     "project": "Veriff",
+     "landing_bucket": "veriff_iot_data",
+     "backup_bucket": "veriff_iot_data_backup"
      
-
-
-
 }

@@ -1,11 +1,10 @@
-
 from airflow import DAG
-from airflow import version
 from airflow.models import Variable
 from airflow.exceptions import AirflowException
 from airflow.operators.python_operator import PythonOperator
 from airflow.contrib.hooks.gcs_hook import GoogleCloudStorageHook
 from airflow.contrib.operators.gcs_to_bq import GoogleCloudStorageToBigQueryOperator
+from airflow.providers.google.cloud.operators.bigquery import BigQueryExecuteQueryOperator
 from airflow.contrib.operators.bigquery_operator import BigQueryOperator
 
 from airflow.utils.dates import days_ago
@@ -48,8 +47,7 @@ def move_objects(
     
 
 
-
-with DAG('loading_to_big_query',
+with DAG('data_load',
     schedule_interval ='@daily', 
     catchup =False, 
     default_args= default_arguments,
@@ -70,7 +68,7 @@ with DAG('loading_to_big_query',
             source_format='CSV',
             skip_leading_rows = 1,
             field_delimiter = ',',
-            destination_project_dataset_table ='Veriff.veriff_iot_data.IoT_Indexed_Processed',
+            destination_project_dataset_table ='Veriff.IoT_Plant_01_Generation_Data.accumulated_data',
             create_disposition ='CREATE_IF_NEEDED',
             write_disposition = 'WRITE_APPEND',
             bigquery_conn_id = 'google_cloud_default',
@@ -84,9 +82,9 @@ with DAG('loading_to_big_query',
             SELECT 
                *,
                ROW_NUMBER() OVER (
-                   PARTITION BY player ORDER BY Date DESC
+                   PARTITION BY player ORDER BY DATE_TIME DESC
                )as RANK
-            FROM  'Veriff.all_players.players_details') as New
+            FROM  'Veriff.veriff_iot_data.Plant_1_Generation_Data') as New
         WHERE rank=1    
 
         )
@@ -104,7 +102,7 @@ with DAG('loading_to_big_query',
 
         )
 
-         move_files = PythonOperator(
+        move_files = PythonOperator(
              task_id = 'move_files',
              python_callable = move_objects,
              op_kwargs = {"source_bucket": LANDING_BUCKET,
